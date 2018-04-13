@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -75,23 +77,26 @@ public class MainActivity extends Activity {
 
     @SuppressLint("ShowToast")
     protected void startScan() {
-        //strengthLog.add("Time\t\tStrength Level");
 
-
-                int k=0;
-                while (k<12) {
-                    wifi.startScan();
-                    wifiList = wifi.getScanResults();
-                    setAdapter();
-                    try {
-                        Thread.sleep(5000);
-                    }
-                    catch (Exception ignored)
+                if(wifi.isWifiEnabled()) {
+                    new CountDownTimer(30000,5000)
                     {
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                            Log.v("seconds remaining: ","" + millisUntilFinished / 1000);
+                            wifi.startScan();
+                            wifiList = wifi.getScanResults();
+                            setAdapter();
 
-                    }
-                    makeText(getApplicationContext(), "Scan finished", Toast.LENGTH_SHORT).show();
-                    k++;
+                            makeText(getApplicationContext(), "Scan finished", Toast.LENGTH_SHORT).show();
+
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            Log.v("done!","done");
+                        }
+                    }.start();
                 }
 
 
