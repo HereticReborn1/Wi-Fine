@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -77,27 +78,31 @@ public class MainActivity extends Activity {
 
     @SuppressLint("ShowToast")
     protected void startScan() {
+        final LocationManager manager = (LocationManager)getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        Log.v("enab",""+manager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+            Toast.makeText(this,"GPS is disabled. Please turn it on",Toast.LENGTH_SHORT).show();
+        else {
+            if (wifi.isWifiEnabled()) {
+                new CountDownTimer(30000, 5000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        Log.v("seconds remaining: ", "" + millisUntilFinished / 1000);
+                        wifi.startScan();
+                        wifiList = wifi.getScanResults();
+                        setAdapter();
 
-                if(wifi.isWifiEnabled()) {
-                    new CountDownTimer(30000,5000)
-                    {
-                        @Override
-                        public void onTick(long millisUntilFinished) {
-                            Log.v("seconds remaining: ","" + millisUntilFinished / 1000);
-                            wifi.startScan();
-                            wifiList = wifi.getScanResults();
-                            setAdapter();
+                        makeText(getApplicationContext(), "Scan finished", Toast.LENGTH_SHORT).show();
 
-                            makeText(getApplicationContext(), "Scan finished", Toast.LENGTH_SHORT).show();
+                    }
 
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            Log.v("done!","done");
-                        }
-                    }.start();
-                }
+                    @Override
+                    public void onFinish() {
+                        Log.v("done!", "done");
+                    }
+                }.start();
+            }
+        }
 
 
 
